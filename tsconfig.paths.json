@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/boot/*": ["./src/boot/*"],
+      "@/Gcomponents/*": ["./src/components/*"]
+    }
+  }
+}
