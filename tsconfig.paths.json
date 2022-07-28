@@ -4,8 +4,10 @@
     "paths": {
       "@/*": ["./src/*"],
       "@/boot/*": ["./src/boot/*"],
-      "@/services/*": ["./src/services/*"],
-      "@/Gcomponents/*": ["./src/components/*"]
+      "@/contexts/*": ["./src/contexts/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/layouts/*": ["./src/layouts/*"],
+      "@/services/*": ["./src/services/*"]
     }
   }
 }

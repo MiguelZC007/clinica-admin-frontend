@@ -1,19 +1,19 @@
-import { useNavigate } from 'react-router-dom';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
+import { useNavigate } from 'react-router-dom'
+import Stack from '@mui/material/Stack'
+import Button from '@mui/material/Button'
 
 export default function NotFoundPage() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const handleSubmit = () => {
-    navigate('/', { replace: true });
-  };
+    navigate('/', { replace: true })
+  }
 
   return (
     <div
       style={{
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        height: '80vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
@@ -27,5 +27,5 @@ export default function NotFoundPage() {
         </Button>
       </Stack>
     </div>
-  );
+  )
 }

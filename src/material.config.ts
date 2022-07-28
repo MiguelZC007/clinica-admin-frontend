@@ -14,14 +14,16 @@ export const theme = createTheme({
     MuiButton: {
       defaultProps: {
         variant: 'contained',
-        fullWidth: true
+        fullWidth: true,
+        size: 'small'
       }
     },
     MuiTextField: {
       defaultProps: {
         variant: 'outlined',
         fullWidth: true,
-        margin: 'normal'
+        margin: 'normal',
+        size: 'small'
       }
     }
   }

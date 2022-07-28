@@ -15,6 +15,7 @@ module.exports = {
   plugins: ['react', '@typescript-eslint'],
   rules: {
     'no-console': 1,
+    'react/react-in-jsx-scope': 'off',
     'space-before-function-paren': [
       'error',
       {
