@@ -1,14 +1,14 @@
-import React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
+import React from 'react'
+import Avatar from '@mui/material/Avatar'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import Link from '@mui/material/Link'
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
+import Typography from '@mui/material/Typography'
 
-import Api from '@/boot/axios';
+import Axios from '@/boot/axios'
 
 function Footer(props: any) {
   return (
@@ -23,26 +23,26 @@ function Footer(props: any) {
       {new Date().getFullYear()}
       {'.'}
     </Typography>
-  );
+  )
 }
 
 export default function LoginPage() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    event.preventDefault()
+    const data = new FormData(event.currentTarget)
 
     const model = {
-      email: data.get('email'),
-      password: data.get('password')
-    };
+      email: data.get('email')?.toString().trim() || '',
+      password: data.get('password')?.toString().trim() || ''
+    }
 
-    Api.post('auth/admin/login', model)
+    Axios.post('auth/admin/login', model)
       .then(response => {
-        console.info(response.data);
+        console.error('RESPONSE', response)
       })
-      .catch(e => console.error(e))
-      .finally(() => console.error('finally'));
-  };
+      .catch((e: any) => console.error(e))
+      .finally(() => console.error('FINALLY'))
+  }
 
   return (
     <Grid container sx={{ height: '100vh' }}>
@@ -101,5 +101,5 @@ export default function LoginPage() {
         </Box>
       </Grid>
     </Grid>
-  );
+  )
 }

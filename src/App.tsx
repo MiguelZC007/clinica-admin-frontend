@@ -1,8 +1,8 @@
-import React from 'react';
-import AppRoutes from './router/AppRoutes';
-import { ThemeProvider } from '@mui/material';
-import { theme } from './material.config';
-import CssBaseline from '@mui/material/CssBaseline';
+import React from 'react'
+import AppRoutes from './router/AppRoutes'
+import { ThemeProvider } from '@mui/material'
+import { theme } from './material.config'
+import CssBaseline from '@mui/material/CssBaseline'
 
 function App() {
   return (
@@ -10,7 +10,7 @@ function App() {
       <CssBaseline />
       <AppRoutes />
     </ThemeProvider>
-  );
+  )
 }
 
-export default App;
+export default App

@@ -4,6 +4,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@/boot/*": ["./src/boot/*"],
+      "@/services/*": ["./src/services/*"],
       "@/Gcomponents/*": ["./src/components/*"]
     }
   }
