@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useState } from 'react'
 import { styled, useTheme } from '@mui/material/styles'
 import Box from '@mui/material/Box'
 import Drawer from '@mui/material/Drawer'
@@ -18,7 +18,10 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import InboxIcon from '@mui/icons-material/MoveToInbox'
 import MailIcon from '@mui/icons-material/Mail'
-import { Outlet } from 'react-router-dom'
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Outlet, useNavigate } from 'react-router-dom'
+import { authAtom, INITIAL_VALUE } from '@/atoms/Auth.atom'
+import { useSetAtom } from 'jotai'
 
 const drawerWidth = 240
 
@@ -72,8 +75,12 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }))
 
 export default function MainLayout() {
+  const navigate = useNavigate();
+
+  const setAtom = useSetAtom(authAtom);
+
   const theme = useTheme()
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
 
   const handleDrawerOpen = () => {
     setOpen(true)
@@ -81,6 +88,13 @@ export default function MainLayout() {
 
   const handleDrawerClose = () => {
     setOpen(false)
+  }
+
+  const handleLogout = (e: any) => {
+    e.preventDefault();
+    localStorage.removeItem("auth");
+    setAtom(INITIAL_VALUE);
+    navigate('/login');
   }
 
   return (
@@ -146,6 +160,15 @@ export default function MainLayout() {
               </ListItemButton>
             </ListItem>
           ))}
+
+          <ListItem key={'Logout'} disablePadding onClick={handleLogout}>
+            <ListItemButton>
+              <ListItemIcon>
+                <DeleteIcon />
+              </ListItemIcon>
+              <ListItemText primary={'Logout'} />
+            </ListItemButton>
+          </ListItem>
         </List>
       </Drawer>
 

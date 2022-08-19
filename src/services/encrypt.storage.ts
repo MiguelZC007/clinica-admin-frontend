@@ -17,7 +17,7 @@ class CryptoStorage {
     }
   }
 
-  setItemStorage(key: string, payload: string, encript = false) {
+  setItemStorage(key: string, payload: any, encript = false) {
     try {
       if (encript) {
         const cipherText = CryptoJS.AES.encrypt(
