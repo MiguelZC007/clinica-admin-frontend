@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { styled, useTheme } from '@mui/material/styles'
 import Box from '@mui/material/Box'
 import Drawer from '@mui/material/Drawer'
@@ -20,8 +20,13 @@ import InboxIcon from '@mui/icons-material/MoveToInbox'
 import MailIcon from '@mui/icons-material/Mail'
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Outlet, useNavigate } from 'react-router-dom'
-import { authAtom, INITIAL_VALUE } from '@/atoms/Auth.atom'
-import { useSetAtom } from 'jotai'
+import { authAtom, INITIAL_VALUE, isLogin } from '@/atoms/Auth.atom'
+import { useAtomValue, useSetAtom } from 'jotai'
+import { AccountCircle } from '@mui/icons-material'
+import { Menu, MenuItem } from '@mui/material'
+import Axios from '@/boot/axios'
+// import encryptStorage from '@/services/encrypt.storage'
+import CryptoStorage from '@/services/encrypt.storage'
 
 const drawerWidth = 240
 
@@ -79,6 +84,10 @@ export default function MainLayout() {
 
   const setAtom = useSetAtom(authAtom);
 
+  const isAuth = useAtomValue(isLogin);
+
+  const [profile, setProfile] = useState({});
+
   const theme = useTheme()
   const [open, setOpen] = useState(false)
 
@@ -97,6 +106,20 @@ export default function MainLayout() {
     navigate('/login');
   }
 
+  useEffect(() => {
+    const session = JSON.parse(CryptoStorage.getItemStorage('auth', true) || '{}')
+
+    Axios.get('auth/admin/profile', {
+      headers: {
+        'Authorization': `Bearer ${session.token}`
+      }
+    })
+      .then(response => {
+        setProfile(response.data);
+      })
+      .catch((e: any) => console.error(e))
+  }, []);
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -114,6 +137,22 @@ export default function MainLayout() {
           <Typography variant="h6" noWrap component="div">
             Persistent drawer
           </Typography>
+
+          {(isAuth && Object.entries(profile).length !== 0) && (
+            <Box sx={{float: 'left'}}>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                // onClick={handleMenu}
+                color="inherit"
+              >
+                <AccountCircle />
+                <Typography>{`${profile.name} ${profile.lastname}`}</Typography>
+              </IconButton>
+            </Box>
+          )}
         </Toolbar>
       </AppBar>
 
