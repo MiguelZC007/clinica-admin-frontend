@@ -3,7 +3,7 @@ import CryptoStorage from '@/services/encrypt.storage'
 
 const authHeader = () => {
   const session = JSON.parse(CryptoStorage.getItemStorage('auth', true) || '{}')
-  if (session?.loggedIn) return `Bearer ${session.token}`
+  if (session) return `Bearer ${session.token}`
   return ''
 }
 
@@ -17,7 +17,7 @@ const axios = Axios.create({
 
 axios.interceptors.request.use(
   async config => {
-    if (authHeader()) config.headers!!['Authorization'] = authHeader()
+    if (authHeader()) config.headers!!.Authorization = authHeader()
     return config
   },
   error => {

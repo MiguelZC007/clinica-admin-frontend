@@ -32,9 +32,9 @@ function Footer(props: any) {
 }
 
 export default function LoginPage() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  const setAtom = useSetAtom(authAtom);
+  const setAtom = useSetAtom(authAtom)
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -47,12 +47,12 @@ export default function LoginPage() {
 
     Axios.post('auth/admin/login', model)
       .then(response => {
-        encryptStorage.setItemStorage('auth', response.data, true);
-        setAtom(response.data);
-        navigate('/', {replace: true});
+        encryptStorage.setItemStorage('auth', response.data, true)
+        setAtom(response.data)
+        navigate('/', { replace: true })
       })
       .catch((e: any) => console.error(e))
-      // .finally(() => console.error('FINALLY'))
+    // .finally(() => console.error('FINALLY'))
   }
 
   return (

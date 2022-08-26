@@ -1,13 +1,13 @@
 import { createTheme } from '@mui/material/styles'
 
-export const theme = createTheme({
+const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#A96AA6'
+      main: '#72C0C2'
     },
     secondary: {
-      main: '#72C0C2'
+      main: '#A96AA6'
     }
   },
   components: {
@@ -18,6 +18,16 @@ export const theme = createTheme({
         size: 'small'
       }
     },
+    MuiIconButton: {
+      defaultProps: {
+        size: 'small'
+      }
+    },
+    MuiSvgIcon: {
+      defaultProps: {
+        fontSize: 'small'
+      }
+    },
     MuiTextField: {
       defaultProps: {
         variant: 'outlined',
@@ -25,6 +35,63 @@ export const theme = createTheme({
         margin: 'normal',
         size: 'small'
       }
+    },
+    MuiTable: {
+      defaultProps: {
+        size: 'small',
+        stickyHeader: true
+      }
+    },
+    MuiTableRow: {
+      defaultProps: {
+        hover: true
+      }
+    },
+    MuiFormControl: {
+      defaultProps: {
+        fullWidth: true,
+        margin: 'normal'
+      }
+    },
+    MuiInputLabel: {
+      defaultProps: {
+        size: 'small'
+      }
+    },
+    MuiSelect: {
+      defaultProps: {
+        size: 'small'
+      }
+    },
+    MuiPaper: {
+      defaultProps: {
+        variant: 'outlined'
+      }
+    },
+    MuiSwitch: {
+      defaultProps: {
+        color: 'primary'
+      }
+    },
+    MuiFormControlLabel: {
+      defaultProps: {
+        labelPlacement: 'start'
+      }
+    },
+    MuiListItem: {
+      defaultProps: {
+        dense: true,
+        divider: true,
+        alignItems: 'flex-start'
+      }
+    },
+    MuiTooltip: {
+      defaultProps: {
+        arrow: true,
+        enterDelay: 1000
+      }
     }
   }
 })
+
+export { theme }

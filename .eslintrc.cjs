@@ -3,7 +3,11 @@ module.exports = {
     browser: true,
     es2021: true
   },
-  extends: ['plugin:react/recommended', 'standard'],
+  extends: [
+    'plugin:react/recommended',
+    'standard',
+    'plugin:prettier/recommended'
+  ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: {
@@ -14,8 +18,18 @@ module.exports = {
   },
   plugins: ['react', '@typescript-eslint'],
   rules: {
-    'no-console': 1,
+    'no-console': ['error', { allow: ['error'] }],
     'react/react-in-jsx-scope': 'off',
+    'no-unused-vars': [
+      'error',
+      {
+        vars: 'all',
+        // args: 'after-used',
+        args: 'none',
+        ignoreRestSiblings: false,
+        caughtErrors: 'none'
+      }
+    ],
     'space-before-function-paren': [
       'error',
       {
@@ -23,11 +37,29 @@ module.exports = {
         named: 'never',
         asyncArrow: 'always'
       }
+    ],
+    'no-var': 'error',
+    'no-empty': 'error',
+    'multiline-ternary': 0,
+    'react/prop-types': 'off',
+    'prettier/prettier': [
+      'error',
+      {
+        endOfLine: 'lf'
+      }
     ]
   },
   settings: {
     react: {
       version: 'detect'
     }
-  }
+  },
+  overrides: [
+    {
+      files: ['*.ts', '*.tsx'],
+      rules: {
+        'no-undef': 'off'
+      }
+    }
+  ]
 }
