@@ -10,6 +10,11 @@ import Typography from '@mui/material/Typography'
 
 import Axios from '@/boot/axios'
 
+import encryptStorage from '@/services/encrypt.storage'
+import { useNavigate } from 'react-router-dom'
+import { useSetAtom } from 'jotai'
+import { authAtom } from '@/atoms/Auth.atom'
+
 function Footer(props: any) {
   return (
     <Typography
@@ -27,6 +32,10 @@ function Footer(props: any) {
 }
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+
+  const setAtom = useSetAtom(authAtom);
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
@@ -38,10 +47,12 @@ export default function LoginPage() {
 
     Axios.post('auth/admin/login', model)
       .then(response => {
-        console.error('RESPONSE', response)
+        encryptStorage.setItemStorage('auth', response.data, true);
+        setAtom(response.data);
+        navigate('/', {replace: true});
       })
       .catch((e: any) => console.error(e))
-      .finally(() => console.error('FINALLY'))
+      // .finally(() => console.error('FINALLY'))
   }
 
   return (

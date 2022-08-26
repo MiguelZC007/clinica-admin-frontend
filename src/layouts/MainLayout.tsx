@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useEffect, useState } from 'react'
 import { styled, useTheme } from '@mui/material/styles'
 import Box from '@mui/material/Box'
 import Drawer from '@mui/material/Drawer'
@@ -18,7 +18,15 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import InboxIcon from '@mui/icons-material/MoveToInbox'
 import MailIcon from '@mui/icons-material/Mail'
-import { Outlet } from 'react-router-dom'
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Outlet, useNavigate } from 'react-router-dom'
+import { authAtom, INITIAL_VALUE, isLogin } from '@/atoms/Auth.atom'
+import { useAtomValue, useSetAtom } from 'jotai'
+import { AccountCircle } from '@mui/icons-material'
+import { Menu, MenuItem } from '@mui/material'
+import Axios from '@/boot/axios'
+// import encryptStorage from '@/services/encrypt.storage'
+import CryptoStorage from '@/services/encrypt.storage'
 
 const drawerWidth = 240
 
@@ -72,8 +80,16 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }))
 
 export default function MainLayout() {
+  const navigate = useNavigate();
+
+  const setAtom = useSetAtom(authAtom);
+
+  const isAuth = useAtomValue(isLogin);
+
+  const [profile, setProfile] = useState({});
+
   const theme = useTheme()
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
 
   const handleDrawerOpen = () => {
     setOpen(true)
@@ -82,6 +98,27 @@ export default function MainLayout() {
   const handleDrawerClose = () => {
     setOpen(false)
   }
+
+  const handleLogout = (e: any) => {
+    e.preventDefault();
+    localStorage.removeItem("auth");
+    setAtom(INITIAL_VALUE);
+    navigate('/login');
+  }
+
+  useEffect(() => {
+    const session = JSON.parse(CryptoStorage.getItemStorage('auth', true) || '{}')
+
+    Axios.get('auth/admin/profile', {
+      headers: {
+        'Authorization': `Bearer ${session.token}`
+      }
+    })
+      .then(response => {
+        setProfile(response.data);
+      })
+      .catch((e: any) => console.error(e))
+  }, []);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -100,6 +137,22 @@ export default function MainLayout() {
           <Typography variant="h6" noWrap component="div">
             Persistent drawer
           </Typography>
+
+          {(isAuth && Object.entries(profile).length !== 0) && (
+            <Box sx={{float: 'left'}}>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                // onClick={handleMenu}
+                color="inherit"
+              >
+                <AccountCircle />
+                <Typography>{`${profile.name} ${profile.lastname}`}</Typography>
+              </IconButton>
+            </Box>
+          )}
         </Toolbar>
       </AppBar>
 
@@ -146,6 +199,15 @@ export default function MainLayout() {
               </ListItemButton>
             </ListItem>
           ))}
+
+          <ListItem key={'Logout'} disablePadding onClick={handleLogout}>
+            <ListItemButton>
+              <ListItemIcon>
+                <DeleteIcon />
+              </ListItemIcon>
+              <ListItemText primary={'Logout'} />
+            </ListItemButton>
+          </ListItem>
         </List>
       </Drawer>
 
