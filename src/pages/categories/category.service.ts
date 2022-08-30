@@ -38,6 +38,16 @@ class CategoryServ {
         .catch(err => reject(err))
     })
   }
+
+  // DELETE
+  deleteCategory(id: string) {
+    return new Promise<CategoryDto>((resolve, reject) => {
+      axios
+        .delete(`${path}/${id}`)
+        .then(response => resolve(response.data))
+        .catch(err => reject(err))
+    })
+  }
 }
 
 export const CategoryServices = new CategoryServ()

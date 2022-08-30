@@ -1,7 +1,9 @@
 import { useGlobalContext } from '@/contexts/MainContext'
 import CheckCircleOutlineSharpIcon from '@mui/icons-material/CheckCircleOutlineSharp'
+import DeleteForeverSharp from '@mui/icons-material/DeleteForeverSharp'
+import EditSharp from '@mui/icons-material/EditSharp'
 import HighlightOffSharpIcon from '@mui/icons-material/HighlightOffSharp'
-import SearchIcon from '@mui/icons-material/Search'
+import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
@@ -9,7 +11,6 @@ import Container from '@mui/material/Container'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
-import InputBase from '@mui/material/InputBase'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -76,7 +77,7 @@ export default function CategoryPage() {
           )
           clear()
           setEdit(false)
-          showNotify('Editado correctamente')
+          showNotify('Edit Successfully')
         })
         .catch(err => showNotify(err))
         .finally(() => setLoading(false))
@@ -85,7 +86,7 @@ export default function CategoryPage() {
         .then(resp => {
           setCategories(previo => [resp, ...previo])
           clear()
-          showNotify('Guardado correctamente')
+          showNotify('Saved Successfully')
         })
         .catch(err => showNotify(err))
         .finally(() => setLoading(false))
@@ -97,39 +98,73 @@ export default function CategoryPage() {
     setCategory(category)
   }
 
+  const handleDeleteButton = (id: string | null | undefined) => {
+    if (id) {
+      // const resul = showConfirmation(
+      //   'Category',
+      //   'Are you sure you want to delete the category?'
+      // )
+      // console.log(resul)
+      CategoryServices.deleteCategory(id)
+        .then(resp => {
+          const newCategories = categories.filter(
+            categoria => categoria.id !== resp.id
+          )
+          setCategories(newCategories)
+          showNotify('Removing Successfully')
+        })
+        .catch(err => showNotify(err))
+        .finally(() => setLoading(false))
+    }
+  }
+
+  const searchOptions = categories.map(category => {
+    return {
+      label: category.name,
+      id: category.id
+    }
+  })
+
+  const handleSearchChange = (event: any, value: any) => {
+    if (value?.id) {
+      const [categorySearch] = categories.filter(
+        category => category.id === value.id
+      )
+
+      setCategory(categorySearch)
+      setEdit(true)
+    } else {
+      setCategory(INITIAL_CATEGORY)
+    }
+  }
+
   return (
     <Container>
       <Typography component="h1" variant="h3">
         Categories
       </Typography>
 
-      {/* Input Search */}
-      <Grid
-        container
-        direction="row"
-        justifyContent="center"
-        alignContent="center"
-      >
+      {/* Start Search Autocomplete */}
+      <Grid container marginY={5} justifyContent="center">
         <Grid item xs={12} md={6} lg={4}>
-          <Paper
-            component="form"
-            sx={{ p: '2px 4px', display: 'flex', alignItems: 'center' }}
-          >
-            <InputBase
-              sx={{ ml: 1, flex: 1 }}
-              placeholder="Search by Category Name"
-              inputProps={{ 'aria-label': 'search google maps' }}
-            />
-            <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
-              <SearchIcon />
-            </IconButton>
-          </Paper>
+          <Autocomplete
+            disablePortal
+            id="combo-box-categories"
+            options={searchOptions}
+            isOptionEqualToValue={(option, value) => option?.id === value?.id}
+            onChange={(event, value) => {
+              handleSearchChange(event, value)
+            }}
+            renderInput={params => (
+              <TextField {...params} label="Filter by Category Name" />
+            )}
+          />
         </Grid>
       </Grid>
+      {/* End Search Autocomplete */}
 
       {/* Start Form */}
       <Box marginY={5}>
-        {/* {console.log(category?.id)} */}
         <form onSubmit={handleSubmitPost} autoComplete="off">
           <Grid
             container
@@ -211,14 +246,34 @@ export default function CategoryPage() {
                     )}
                   </TableCell>
                   <TableCell align="center">
+                    {/* <Button
+                      variant="contained"
+                      onClick={() => handleEditButton(category)}
+                      // fullWidth={false}
+                    >
+                      <EditSharp />
+                    </Button>
+
                     <Button
                       variant="contained"
-                      value={`${category.id}`}
                       onClick={() => handleEditButton(category)}
-                      fullWidth={false}
+                      // fullWidth={false}
                     >
-                      Edit
-                    </Button>
+                      <DeleteForeverSharp />
+                    </Button> */}
+
+                    <IconButton
+                      aria-label="edit"
+                      onClick={() => handleEditButton(category)}
+                    >
+                      <EditSharp color="primary" />
+                    </IconButton>
+                    <IconButton
+                      aria-label="delete"
+                      onClick={() => handleDeleteButton(category.id)}
+                    >
+                      <DeleteForeverSharp color="error" />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}
