@@ -1,32 +1,31 @@
-import { useEffect, useState } from 'react'
-import { styled, useTheme } from '@mui/material/styles'
-import Box from '@mui/material/Box'
-import Drawer from '@mui/material/Drawer'
-import CssBaseline from '@mui/material/CssBaseline'
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar'
-import Toolbar from '@mui/material/Toolbar'
-import List from '@mui/material/List'
-import Typography from '@mui/material/Typography'
-import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
-import MenuIcon from '@mui/icons-material/Menu'
+import { authAtom, INITIAL_VALUE, isLogin } from '@/atoms/Auth.atom'
+import Axios from '@/boot/axios'
+import { User } from '@/models/user.dto'
+import { AccountCircle } from '@mui/icons-material'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import DeleteIcon from '@mui/icons-material/Delete'
+import MailIcon from '@mui/icons-material/Mail'
+import MenuIcon from '@mui/icons-material/Menu'
+import InboxIcon from '@mui/icons-material/MoveToInbox'
+import { Link as MaterialLink } from '@mui/material'
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar'
+import Box from '@mui/material/Box'
+import CssBaseline from '@mui/material/CssBaseline'
+import Divider from '@mui/material/Divider'
+import Drawer from '@mui/material/Drawer'
+import IconButton from '@mui/material/IconButton'
+import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
-import InboxIcon from '@mui/icons-material/MoveToInbox'
-import MailIcon from '@mui/icons-material/Mail'
-import DeleteIcon from '@mui/icons-material/Delete';
-import { Outlet, useNavigate } from 'react-router-dom'
-import { authAtom, INITIAL_VALUE, isLogin } from '@/atoms/Auth.atom'
+import { styled, useTheme } from '@mui/material/styles'
+import Toolbar from '@mui/material/Toolbar'
+import Typography from '@mui/material/Typography'
 import { useAtomValue, useSetAtom } from 'jotai'
-import { AccountCircle } from '@mui/icons-material'
-import { Menu, MenuItem } from '@mui/material'
-import Axios from '@/boot/axios'
-// import encryptStorage from '@/services/encrypt.storage'
 import CryptoStorage from '@/services/encrypt.storage'
+import { useEffect, useState } from 'react'
+import { useNavigate, Link as RouterLink, Outlet } from 'react-router-dom'
 
 const drawerWidth = 240
 
@@ -80,13 +79,13 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }))
 
 export default function MainLayout() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  const setAtom = useSetAtom(authAtom);
+  const setAtom = useSetAtom(authAtom)
 
-  const isAuth = useAtomValue(isLogin);
+  const isAuth = useAtomValue(isLogin)
 
-  const [profile, setProfile] = useState({});
+  const [profile, setProfile] = useState<User | null>(null)
 
   const theme = useTheme()
   const [open, setOpen] = useState(false)
@@ -100,25 +99,29 @@ export default function MainLayout() {
   }
 
   const handleLogout = (e: any) => {
-    e.preventDefault();
-    localStorage.removeItem("auth");
-    setAtom(INITIAL_VALUE);
-    navigate('/login');
+    e.preventDefault()
+    localStorage.removeItem('auth')
+    setAtom(INITIAL_VALUE)
+    navigate('/login')
   }
 
   useEffect(() => {
-    const session = JSON.parse(CryptoStorage.getItemStorage('auth', true) || '{}')
+    if (isAuth) {
+      const session = JSON.parse(
+        CryptoStorage.getItemStorage('auth', true) || '{}'
+      )
 
-    Axios.get('auth/admin/profile', {
-      headers: {
-        'Authorization': `Bearer ${session.token}`
-      }
-    })
-      .then(response => {
-        setProfile(response.data);
+      Axios.get('auth/admin/profile', {
+        headers: {
+          Authorization: `Bearer ${session.token}`
+        }
       })
-      .catch((e: any) => console.error(e))
-  }, []);
+        .then(response => {
+          setProfile(response.data)
+        })
+        .catch((e: any) => console.error(e))
+    }
+  }, [])
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -138,8 +141,8 @@ export default function MainLayout() {
             Persistent drawer
           </Typography>
 
-          {(isAuth && Object.entries(profile).length !== 0) && (
-            <Box sx={{float: 'left'}}>
+          {isAuth && Object.entries(profile ?? {}).length !== 0 && (
+            <Box sx={{ position: 'absolute', right: 0 }}>
               <IconButton
                 size="large"
                 aria-label="account of current user"
@@ -149,7 +152,9 @@ export default function MainLayout() {
                 color="inherit"
               >
                 <AccountCircle />
-                <Typography>{`${profile.name} ${profile.lastname}`}</Typography>
+                <Typography>{`${profile?.name || ''} ${
+                  profile?.lastname || ''
+                }`}</Typography>
               </IconButton>
             </Box>
           )}
@@ -199,6 +204,17 @@ export default function MainLayout() {
               </ListItemButton>
             </ListItem>
           ))}
+
+          <MaterialLink component={RouterLink} to="/categories">
+            <ListItem key={'Categories'} disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <InboxIcon />
+                </ListItemIcon>
+                <ListItemText primary={'Categories'} />
+              </ListItemButton>
+            </ListItem>
+          </MaterialLink>
 
           <ListItem key={'Logout'} disablePadding onClick={handleLogout}>
             <ListItemButton>
