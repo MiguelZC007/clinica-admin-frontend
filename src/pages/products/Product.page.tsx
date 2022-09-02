@@ -3,6 +3,7 @@ import CheckCircleOutlineSharpIcon from '@mui/icons-material/CheckCircleOutlineS
 import DeleteForeverSharp from '@mui/icons-material/DeleteForeverSharp'
 import EditSharp from '@mui/icons-material/EditSharp'
 import HighlightOffSharpIcon from '@mui/icons-material/HighlightOffSharp'
+import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -13,16 +14,15 @@ import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
-import Pagination from '@mui/material/Pagination'
 import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
-import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
+import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -33,8 +33,6 @@ import { ProductDto } from './dto/product.dto'
 import { ProductModel } from './product.model'
 import { ProductServices } from './product.service'
 
-const TAKE_ITEMS = 10
-
 export default function CategoryPage() {
   const INITIAL_PRODUCT = useMemo(() => new ProductModel().getProductDto(), [])
 
@@ -42,24 +40,25 @@ export default function CategoryPage() {
   const [categories, setCategories] = useState<CategoryDto[]>([])
   const [product, setProduct] = useState(INITIAL_PRODUCT)
   const [edit, setEdit] = useState(false)
-  const [page, setPage] = useState(1)
   const [totalProducts, setTotalProducts] = useState(0)
+  const [page, setPage] = React.useState(0)
+  const [rowsPerPage, setRowsPerPage] = React.useState(10)
 
   const { setLoading, showNotify, showConfirmation } = useGlobalContext()
 
   // Get all products
   useEffect(() => {
     ProductServices.findAllProducts()
-      .then(result => setTotalProducts(result.length))
+      .then(result => {
+        setProducts(result)
+        setTotalProducts(result.length)
+      })
       .catch(err => showNotify(err))
   }, [])
 
-  // Get all products by page
-  useEffect(() => {
-    ProductServices.findProductsByPage(TAKE_ITEMS, page)
-      .then(result => setProducts(result))
-      .catch(err => showNotify(err))
-  }, [page])
+  const productList = () => {
+    return products.slice(page * rowsPerPage, rowsPerPage * (page + 1))
+  }
 
   useEffect(() => {
     CategoryServices.findAllCategories()
@@ -139,10 +138,44 @@ export default function CategoryPage() {
     return category.name
   }
 
-  const totalPages = Math.ceil(totalProducts / TAKE_ITEMS)
+  const searchOptions = products.map(product => {
+    return {
+      id: product.id,
+      name: product.name
+    }
+  })
 
-  const handleChangePage = (e: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value)
+  const handleSearchChange = (
+    event: React.SyntheticEvent,
+    value: {
+      name: string | null | undefined
+      id: string | null | undefined
+    } | null
+  ) => {
+    if (value?.id) {
+      const [productSearch] = products.filter(
+        product => product.id === value.id
+      )
+
+      setProduct(productSearch)
+      setEdit(true)
+    } else {
+      setProduct(INITIAL_PRODUCT)
+    }
+  }
+
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
+    setPage(newPage)
+  }
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value, 10))
+    setPage(0)
   }
 
   return (
@@ -150,6 +183,26 @@ export default function CategoryPage() {
       <Typography component="h1" variant="h3">
         Products
       </Typography>
+
+      {/* Start Search Autocomplete */}
+      <Grid container marginY={5} justifyContent="center">
+        <Grid item xs={12} md={6} lg={4}>
+          <Autocomplete
+            disablePortal
+            id="combo-box-categories"
+            options={searchOptions}
+            getOptionLabel={option => option.name}
+            isOptionEqualToValue={(option, value) => option?.id === value?.id}
+            onChange={(event, value) => {
+              handleSearchChange(event, value)
+            }}
+            renderInput={params => (
+              <TextField {...params} label="Filter by Category Name" />
+            )}
+          />
+        </Grid>
+      </Grid>
+      {/* End Search Autocomplete */}
 
       {/* Start Form */}
       <Box
@@ -292,11 +345,6 @@ export default function CategoryPage() {
               </Button>
             </Box>
           </Grid>
-          {/* <Grid item>
-            <Button variant="outlined" onClick={clearProduct}>
-              Clear
-            </Button>
-          </Grid> */}
         </Grid>
       </Box>
       {/* End Form */}
@@ -318,7 +366,7 @@ export default function CategoryPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {products.map(product => (
+              {productList().map(product => (
                 <TableRow
                   key={product.id}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -346,22 +394,21 @@ export default function CategoryPage() {
                   <TableCell align="left">
                     {getCategoryName(product.category_id)}
                   </TableCell>
-                  <TableCell
-                    align="center"
-                    sx={{ display: 'flex', flexDirection: 'row' }}
-                  >
-                    <IconButton
-                      aria-label="edit"
-                      onClick={() => handleEditButton(product)}
-                    >
-                      <EditSharp color="primary" />
-                    </IconButton>
-                    <IconButton
-                      aria-label="delete"
-                      onClick={() => handleDeleteButton(product.id)}
-                    >
-                      <DeleteForeverSharp color="error" />
-                    </IconButton>
+                  <TableCell align="center">
+                    <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                      <IconButton
+                        aria-label="edit"
+                        onClick={() => handleEditButton(product)}
+                      >
+                        <EditSharp color="primary" />
+                      </IconButton>
+                      <IconButton
+                        aria-label="delete"
+                        onClick={() => handleDeleteButton(product.id)}
+                      >
+                        <DeleteForeverSharp color="error" />
+                      </IconButton>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))}
@@ -370,21 +417,14 @@ export default function CategoryPage() {
         </TableContainer>
 
         {/* Start Pagination */}
-        <Stack
-          spacing={2}
-          direction="row"
-          justifyContent="center"
-          alignItems="center"
-          sx={{ marginY: 3 }}
-        >
-          <Pagination
-            count={totalPages}
-            color="secondary"
-            showFirstButton
-            showLastButton
-            onChange={handleChangePage}
-          />
-        </Stack>
+        <TablePagination
+          component="div"
+          count={totalProducts}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
         {/* Start Pagination */}
       </Box>
       {/* End Table */}
