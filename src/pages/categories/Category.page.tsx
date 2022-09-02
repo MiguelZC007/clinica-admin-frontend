@@ -102,10 +102,12 @@ export default function CategoryPage() {
 
   const handleDeleteButton = (id: string | null | undefined) => {
     if (!id) return
+
     showConfirmation(
       'Delete Category',
       'Are you sure you want to delete the category?',
       () => {
+        setLoading(true)
         CategoryServices.deleteCategory(id)
           .then(resp => {
             const newCategories = categories.filter(
