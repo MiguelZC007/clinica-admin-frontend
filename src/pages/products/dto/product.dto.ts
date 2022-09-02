@@ -1,13 +1,25 @@
 export interface ProductDto {
-  id?: string | null
+  id?: string
   name: string
   price: number
-  state?: true
+  state: boolean
   description?: string
-  programmable: true
-  sub_category?: string | null
+  programmable: boolean
+  sub_category?: string
   category_id: string
-  // odoo_product_id?: number | null
-  // createdAt?: Date | null
-  // updatedAt?: Date | null
+  odoo_product_id?: number
+  createdAt?: Date
+  updatedAt?: Date
 }
+
+export interface CreateProductDto {
+  name: string
+  price: number
+  state: boolean
+  description?: string
+  programmable: boolean
+  sub_category?: string
+  category_id: string
+}
+
+export interface UpdateProductDto extends CreateProductDto {}

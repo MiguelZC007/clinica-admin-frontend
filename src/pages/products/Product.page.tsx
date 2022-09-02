@@ -26,7 +26,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { CategoryServices } from '../categories/category.service'
 import { CategoryDto } from '../categories/dto/category.dto'
 import { ProductDto } from './dto/product.dto'
@@ -36,9 +36,11 @@ import { ProductServices } from './product.service'
 const TAKE_ITEMS = 10
 
 export default function CategoryPage() {
+  const INITIAL_PRODUCT = useMemo(() => new ProductModel().getProductDto(), [])
+
   const [products, setProducts] = useState<ProductDto[]>([])
   const [categories, setCategories] = useState<CategoryDto[]>([])
-  const [product, setProduct] = useState(new ProductModel().getProduct())
+  const [product, setProduct] = useState(INITIAL_PRODUCT)
   const [edit, setEdit] = useState(false)
   const [page, setPage] = useState(1)
   const [totalProducts, setTotalProducts] = useState(0)
@@ -65,13 +67,6 @@ export default function CategoryPage() {
       .catch(err => showNotify(err))
   }, [])
 
-  const categoryOptions = categories.map(category => {
-    return {
-      name: category.name,
-      id: category.id
-    }
-  })
-
   const clearProduct = () => {
     setProduct(new ProductModel().getProduct())
   }
@@ -81,8 +76,9 @@ export default function CategoryPage() {
 
     setLoading(true)
     if (edit) {
-      const model = new ProductModel().getCreateProduct(product)
-      ProductServices.updateProduct(model, product.id)
+      const model = new ProductModel()
+      model.setProduct(product)
+      ProductServices.updateProduct(model.getCreateProduct(), product.id)
         .then(resp => {
           setProducts(preview =>
             preview.map(p => {
@@ -100,8 +96,7 @@ export default function CategoryPage() {
         .catch(err => showNotify(err))
         .finally(() => setLoading(false))
     } else {
-      const model: ProductDto = new ProductModel().getCreateProduct(product)
-      ProductServices.createProduct(model)
+      ProductServices.createProduct(product)
         .then(resp => {
           setProducts(prev => [resp, ...prev])
           clearProduct()
@@ -269,9 +264,9 @@ export default function CategoryPage() {
                   }))
                 }
               >
-                {categoryOptions.map(option => (
-                  <MenuItem key={option.id} value={option.id}>
-                    {option.name}
+                {categories.map(category => (
+                  <MenuItem key={category.id} value={category.id}>
+                    {category.name}
                   </MenuItem>
                 ))}
               </Select>

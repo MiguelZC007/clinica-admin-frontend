@@ -1,10 +1,10 @@
 export interface CategoryDto {
-  id?: string | null
-  name?: string | null
-  description?: string | null
+  id?: string
+  name?: string
+  description?: string
   state?: boolean
-  createdAt?: Date | null
-  updatedAt?: Date | null
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export interface CreateCategoryDto {

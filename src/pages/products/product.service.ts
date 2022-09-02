@@ -1,13 +1,16 @@
 import axios from '@/boot/axios'
 import { ProductDto } from './dto/product.dto'
+import { ProductModel } from './product.model'
 
 const path = 'product'
 
 class ProductServ {
   createProduct(product: ProductDto) {
+    const model = new ProductModel()
+    model.setProduct(product)
     return new Promise<ProductDto>((resolve, reject) => {
       axios
-        .post(path, product)
+        .post(path, model.getCreateProduct())
         .then(response => resolve(response.data))
         .catch(err => reject(err))
     })
