@@ -33,7 +33,7 @@ export default function CategoryPage() {
   const [categories, setCategories] = useState<CategoryDto[]>([])
   const [category, setCategory] = useState<CategoryDto>(INITIAL_CATEGORY)
   const [edit, setEdit] = useState(false)
-  const { setLoading, showNotify } = useGlobalContext()
+  const { setLoading, showNotify, showConfirmation } = useGlobalContext()
 
   useEffect(() => {
     CategoryServices.findAllCategories()
@@ -47,21 +47,23 @@ export default function CategoryPage() {
     setCategory(INITIAL_CATEGORY)
   }
 
-  const handleChangeCategory = (e: string | any) => {
+  const handleChangeCategory = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setCategory({
       ...category,
       [e.target.name]: e.target.value
     })
   }
 
-  const handleChangeCheckbox = (e: string | any) => {
+  const handleChangeCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCategory({
       ...category,
       [e.target.name]: e.target.checked
     })
   }
 
-  const handleSubmitPost = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     if (edit) {
@@ -99,23 +101,23 @@ export default function CategoryPage() {
   }
 
   const handleDeleteButton = (id: string | null | undefined) => {
-    if (id) {
-      // const resul = showConfirmation(
-      //   'Category',
-      //   'Are you sure you want to delete the category?'
-      // )
-      // console.log(resul)
-      CategoryServices.deleteCategory(id)
-        .then(resp => {
-          const newCategories = categories.filter(
-            categoria => categoria.id !== resp.id
-          )
-          setCategories(newCategories)
-          showNotify('Removing Successfully')
-        })
-        .catch(err => showNotify(err))
-        .finally(() => setLoading(false))
-    }
+    if (!id) return
+    showConfirmation(
+      'Delete Category',
+      'Are you sure you want to delete the category?',
+      () => {
+        CategoryServices.deleteCategory(id)
+          .then(resp => {
+            const newCategories = categories.filter(
+              categoria => categoria.id !== resp.id
+            )
+            setCategories(newCategories)
+            showNotify('Removing Successfully')
+          })
+          .catch(err => showNotify(err))
+          .finally(() => setLoading(false))
+      }
+    )
   }
 
   const searchOptions = categories.map(category => {
@@ -125,7 +127,13 @@ export default function CategoryPage() {
     }
   })
 
-  const handleSearchChange = (event: any, value: any) => {
+  const handleSearchChange = (
+    event: React.SyntheticEvent,
+    value: {
+      label: string | null | undefined
+      id: string | null | undefined
+    } | null
+  ) => {
     if (value?.id) {
       const [categorySearch] = categories.filter(
         category => category.id === value.id
@@ -164,55 +172,58 @@ export default function CategoryPage() {
       {/* End Search Autocomplete */}
 
       {/* Start Form */}
-      <Box marginY={5}>
-        <form onSubmit={handleSubmitPost} autoComplete="off">
-          <Grid
-            container
-            rowSpacing={2}
-            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
-          >
-            <Grid item xs={12} md={4}>
-              <TextField
-                name="name"
-                label="Category name"
-                value={category.name}
-                onChange={handleChangeCategory}
-                required
-              />
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <TextField
-                name="description"
-                label="Description of the category"
-                placeholder="Placeholder"
-                multiline
-                rows={4}
-                value={category.description}
-                onChange={handleChangeCategory}
-              />
-            </Grid>
-
-            <Grid item xs={12} md={2}>
-              <FormControlLabel
-                control={<Checkbox name="state" checked={category.state} />}
-                label="State"
-                onChange={handleChangeCheckbox}
-              />
-            </Grid>
-
-            <Grid item>
-              <Button type="submit" color={edit ? 'secondary' : 'primary'}>
-                {edit ? 'Edit' : 'Save'}
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button variant="outlined" onClick={clear}>
-                Clear
-              </Button>
-            </Grid>
+      <Box
+        marginY={5}
+        component="form"
+        onSubmit={handleSubmit}
+        autoComplete="off"
+      >
+        <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+          <Grid item xs={12} md={4}>
+            <TextField
+              name="name"
+              label="Category name"
+              value={category.name}
+              onChange={handleChangeCategory}
+              required
+            />
           </Grid>
-        </form>
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              name="description"
+              label="Description of the category"
+              multiline
+              rows={4}
+              value={category.description}
+              onChange={handleChangeCategory}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={2}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="state"
+                  checked={category.state}
+                  onChange={handleChangeCheckbox}
+                />
+              }
+              label="State"
+            />
+          </Grid>
+
+          <Grid item>
+            <Button type="submit" color={edit ? 'secondary' : 'primary'}>
+              {edit ? 'Edit' : 'Save'}
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="outlined" onClick={clear}>
+              Clear
+            </Button>
+          </Grid>
+        </Grid>
       </Box>
       {/* End Form */}
 
@@ -246,22 +257,6 @@ export default function CategoryPage() {
                     )}
                   </TableCell>
                   <TableCell align="center">
-                    {/* <Button
-                      variant="contained"
-                      onClick={() => handleEditButton(category)}
-                      // fullWidth={false}
-                    >
-                      <EditSharp />
-                    </Button>
-
-                    <Button
-                      variant="contained"
-                      onClick={() => handleEditButton(category)}
-                      // fullWidth={false}
-                    >
-                      <DeleteForeverSharp />
-                    </Button> */}
-
                     <IconButton
                       aria-label="edit"
                       onClick={() => handleEditButton(category)}
