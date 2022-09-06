@@ -216,6 +216,17 @@ export default function MainLayout() {
             </ListItem>
           </MaterialLink>
 
+          <MaterialLink component={RouterLink} to="/products">
+            <ListItem key={'Products'} disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <InboxIcon />
+                </ListItemIcon>
+                <ListItemText primary={'Products'} />
+              </ListItemButton>
+            </ListItem>
+          </MaterialLink>
+
           <ListItem key={'Logout'} disablePadding onClick={handleLogout}>
             <ListItemButton>
               <ListItemIcon>
